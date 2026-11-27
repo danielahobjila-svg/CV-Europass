@@ -61,7 +61,7 @@ button.primary{background:var(--blue);color:white}button:disabled{opacity:.6}but
 <fieldset><legend>Competențe personale</legend><div class="stack">
 <div id="mother"></div><div><h3>Alte limbi străine cunoscute</h3><p class="hint">Alege nivelul A1–C2 pentru fiecare abilitate pe care o poți evalua.</p>
 <div id="languages"></div><button type="button" id="addLanguage">Adaugă o limbă</button></div>
-<p class="hint">Folosește exemplele pentru inspirație și scrie în cuvintele tale. În CV intră doar textul pe care îl scrii în casete.</p><div id="skills" class="stack"></div></div></fieldset>
+<div id="skills" class="stack"></div></div></fieldset>
 <fieldset><legend>Informații suplimentare</legend><div id="extra"></div></fieldset>
 <fieldset><legend>Anexe și dată</legend><div class="stack" id="closing"></div></fieldset>
 <p class="hint">Poți descărca CV-ul chiar dacă lași câmpuri necompletate. Datele sunt prelucrate în pagina deschisă și nu sunt trimise online. Descarcă CV-ul înainte de a închide pagina.</p>
@@ -108,20 +108,16 @@ const abilities = ['Ascultare', 'Citire', 'Participare la conversație', 'Discur
 const levels = ['A1','A2','B1','B2','C1','C2'];
 const personal = [
   ['name','Nume și prenume',{wide:true}],
-  ['address','Adresă',{wide:true,placeholder:'Stradă, număr, localitate, județ'}],
+  ['address','Adresă',{wide:true}],
   ['phone','Telefon',{type:'tel'}], ['email','E-mail',{type:'email'}],
   ['gender','Sexul',{}], ['birth','Data nașterii',{type:'date'}],
   ['nationality','Naționalitatea',{}],
 ];
 const skills = [
-  ['communication','Competențe de comunicare',
-    'Pentru inspirație\n• Ai prezentat o idee la „Drepturi pentru o lume mai durabilă!” sau la „Preistoria prin lentila Agendei 2030”.\n• Ai explicat unui coleg cum se rezolvă un exercițiu ori ai prezentat concluziile echipei.'],
-  ['organization','Competențe organizaționale',
-    'Pentru inspirație\n• Ai pregătit materiale ori ai împărțit sarcinile în „Citim împreună” sau „Poartă un mesaj verde!”, în cadrul Com’ON Vaslui 2026.\n• Ai organizat o colectă de cărți, un turneu între clase sau un plan de studiu.'],
-  ['digital','Competențe informatice',
-    'Pentru inspirație\n• Ai făcut o prezentare pentru un concurs de istorie sau ai contribuit la un produs digital în „Earth is Our Home 3” ori „Be Fantastic… Cut the Plastic!”.\n• Ai realizat un chestionar online, ai reprezentat rezultate într-un grafic sau ai editat un videoclip.'],
-  ['other','Alte competențe',
-    'Pentru inspirație\n• Ai colaborat cu echipa la o ecologizare „Let’s Do It, Romania!” sau ai propus o soluție pentru reducerea deșeurilor.\n• Ai comparat surse pentru o temă, ai învățat o abilitate nouă sau ai găsit o soluție când planul inițial s-a schimbat.'],
+  ['communication','Competențe de comunicare'],
+  ['organization','Competențe organizaționale'],
+  ['digital','Competențe informatice'],
+  ['other','Alte competențe'],
 ];
 function node(tag, text) {
   const element = document.createElement(tag);
@@ -135,17 +131,9 @@ function field(parent, key, title, options = {}) {
   input.name = key;
   if (input.tagName === 'INPUT') input.type = options.type || 'text';
   if (!options.choices && input.type !== 'date') input.maxLength = options.multiline ? 2400 : 220;
-  if (options.placeholder) input.placeholder = options.placeholder;
   if (options.choices) {
     input.append(new Option('Alege nivelul', ''));
     for (const choice of options.choices) input.append(new Option(choice, choice));
-  }
-  if (options.hint) {
-    const hint = node('span', options.hint);
-    hint.className = 'hint';
-    hint.id = key + '-hint';
-    input.setAttribute('aria-describedby', hint.id);
-    label.append(hint);
   }
   label.append(input);
   parent.append(label);
@@ -182,14 +170,14 @@ function record(container, label, inputs) {
 }
 function addSchool() {
   return record(group('education'),'Instituție de învățământ',[
-    ['period','Perioada',{placeholder:'Ex. Septembrie 2024 – prezent'}],
-    ['school','Instituția și localitatea',{placeholder:'Ex. Liceul „Ștefan Procopiu”, Vaslui'}],
+    ['period','Perioada',{}],
+    ['school','Instituția și localitatea',{}],
     ['detail','Filiera, profilul și specializarea',{wide:true}],
   ]);
 }
-function addLanguage(language) {
+function addLanguage() {
   return record(group('languages'),'Limbă străină',[
-    ['language','Limba',{wide:true,placeholder:'Ex. Germană'}, language],
+    ['language','Limba',{wide:true}],
     ...abilities.map((title, index) => ['level'+index,title,{choices:levels}]),
     ['certificate','Certificat și nivel (dacă există)',{wide:true}],
   ]);
@@ -197,22 +185,22 @@ function addLanguage(language) {
 
 for (const [key,title,options] of personal) field(group('personal'),key,title,options);
 group('role').textContent = projectRole;
-field(group('mother'),'mother','Limba maternă / Limbile materne',{placeholder:'Ex. Română'});
-for (const [key,title,hint] of skills) {
-  const input = field(group('skills'),key,title,{multiline:true,hint});
+field(group('mother'),'mother','Limba maternă / Limbile materne',{});
+for (const [key,title] of skills) {
+  const input = field(group('skills'),key,title,{multiline:true});
   input.maxLength = 6000;
 }
-field(group('skills'),'license','Permis de conducere',{placeholder:'Ex. Nu dețin / Categoria B'});
-field(group('extra'),'extra','Premii, diplome și alte realizări',{multiline:true,hint:'Menționează anul, denumirea activității și rezultatul obținut.'});
-field(group('closing'),'annexes','Lista documentelor anexate',{multiline:true,hint:'Scrie denumirea fiecărui document pe un rând separat.'});
+field(group('skills'),'license','Permis de conducere',{});
+field(group('extra'),'extra','Premii, diplome și alte realizări',{multiline:true});
+field(group('closing'),'annexes','Lista documentelor anexate',{multiline:true});
 field(group('closing'),'date','Data CV-ului',{type:'date'});
 function seedRecords() {
   group('education').replaceChildren();
   group('languages').replaceChildren();
   addSchool();
   addSchool();
-  addLanguage('Engleză');
-  addLanguage('Franceză');
+  addLanguage();
+  addLanguage();
 }
 seedRecords();
 group('addSchool').addEventListener('click', () => addSchool().focus());
